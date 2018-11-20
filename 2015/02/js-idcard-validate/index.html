@@ -1,0 +1,913 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="fog1liP0xE">
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="js,身份证号码验证,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Frenlee" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="概述利用身份证号码的生成规则,简单的验证身份证号码的准确性.">
+<meta name="keywords" content="js,身份证号码验证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="身份证号码的简单验证">
+<meta property="og:url" content="http://blog.frenlee.com/2015/02/js-idcard-validate/index.html">
+<meta property="og:site_name" content="Frenlee">
+<meta property="og:description" content="概述利用身份证号码的生成规则,简单的验证身份证号码的准确性.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-20T04:09:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="身份证号码的简单验证">
+<meta name="twitter:description" content="概述利用身份证号码的生成规则,简单的验证身份证号码的准确性.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.frenlee.com/2015/02/js-idcard-validate/">
+
+
+
+
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+
+  <title> 身份证号码的简单验证 | Frenlee </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-111666479-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?204dafdfd4e301f2a2ddb7be470cd035";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1261168597&web_id=1261168597" language="JavaScript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Frenlee</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">勇往直前</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-collect">
+          <a href="/collect" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br>
+            
+            收藏
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.frenlee.com/2015/02/js-idcard-validate/">
+
+  <span style="display:none" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Foyal">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Frenlee">
+    <span style="display:none" itemprop="logo" itemscope="" itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Frenlee" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                身份证号码的简单验证
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-02-05T22:48:09+00:00">
+                2015-02-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/代码片段/" itemprop="url" rel="index">
+                    <span itemprop="name">代码片段</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/02/js-idcard-validate/" class="leancloud_visitors" data-flag-title="身份证号码的简单验证">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>利用身份证号码的生成规则,简单的验证身份证号码的准确性.</p>
+<a id="more"></a>
+<h4 id="验证原理"><a href="#验证原理" class="headerlink" title="验证原理"></a>验证原理</h4><ul>
+<li>将前面的身份证号码17位数分别乘以不同的系数。从第一位到第十七位的系数分别为：      7－9－10－5－8－4－2－1－6－3－7－9－10－5－8－4－2。</li>
+<li>将这17位数字和系数相乘的结果相加。</li>
+<li>用加出来和除以11，看余数是多少？</li>
+<li>余数只可能有0－1－2－3－4－5－6－7－8－9－10这11个数字。其分别对应的最后一位身份证的号码为1－0－X －9－8－7－6－5－4－3－2。</li>
+<li>通过上面得知如果余数是3，就会在身份证的第18位数字上出现的是9。如果对应的数字是2，身份证的最后一位号码就是罗马数字x。<blockquote>
+<p>例如：某男性的身份证号码为【53010219200508011x】， 我们看看这个身份证是不是合法的身份证。<br>首先我们得出前17位的乘积和【(5<em>7)+(3</em>9)+(0<em>10)+(1</em>5)+(0<em>8)+(2</em>4)+(1<em>2)+(9</em>1)+(2<em>6)+(0</em>3)+(0<em>7)+(5</em>9)+(0<em>10)+(8</em>5)+(0<em>8)+(1</em>4)+(1*2)】是189，然后用189除以11得出的结果是189/11=17—-2，也就是说其余数是2。最后通过对应规则就可以知道余数2对应的检验码是X。所以，可以判定这是一个正确的身份证号码。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="身份证的构成"><a href="#身份证的构成" class="headerlink" title="身份证的构成"></a>身份证的构成</h4><blockquote>
+<p>身份证号分为两种，旧的为15位，新的为18位。身份证15位编码规则：dddddd yymmdd xx p    其中 dddddd：地区码    yymmdd: 出生年月日    xx: 顺序类编码，无法确定    p: 性别，奇数为男，偶数为女； 身份证18位编码规则：dddddd yyyymmdd xxx y    其中 dddddd：地区码    yyyymmdd: 出生年月日     xxx:顺序类编码，无法确定，奇数为男，偶数为女    y: 校验码，该位数值可通过前17位计算获得，计算的公式见程序，一些需要用到的常数：18位号码加权因子为(从右到左) Wi = [ 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2,1 ]    验证位 Y = [ 1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2 ]    校验位计算公式：Y_P = mod( ∑(Ai×Wi),11 )     i为身份证号码从右往左数的 2…18 位; Y_P为脚丫校验码所在校验码数组位置。</p>
+</blockquote>
+<h3 id="验证实现"><a href="#验证实现" class="headerlink" title="验证实现"></a>验证实现</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Wi = [ <span class="number">7</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">5</span>,<span class="number">8</span>,<span class="number">4</span>,<span class="number">2</span>,<span class="number">1</span>,<span class="number">6</span>,<span class="number">3</span>,<span class="number">7</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">5</span>,<span class="number">8</span>,<span class="number">4</span>,<span class="number">2</span>,<span class="number">1</span>];<span class="comment">//加权因子</span></span><br><span class="line"><span class="keyword">var</span> ValideCode = [<span class="number">1</span>,<span class="number">0</span>,<span class="number">10</span>,<span class="number">9</span>,<span class="number">8</span>,<span class="number">7</span>,<span class="number">6</span>,<span class="number">5</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">2</span>];<span class="comment">//身份证验证值 10代表X</span></span><br><span class="line"><span class="comment">//验证函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">IdCardValidata</span><span class="params">(idCard)</span></span>&#123;</span><br><span class="line">	idCard = trim(idCard.replace(/ /g, <span class="string">""</span>));<span class="comment">//去掉字符串头尾空格</span></span><br><span class="line">	<span class="keyword">if</span>(idCard.length == <span class="number">15</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> isValidityBrithBy15IdCard(idCard);<span class="comment">//进行15位身份证的验证</span></span><br><span class="line">	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(idCard.length == <span class="number">18</span>)&#123;</span><br><span class="line">		<span class="keyword">var</span> a_idCard = idCard.split(<span class="string">""</span>);<span class="comment">//得到身份证数组</span></span><br><span class="line">		<span class="keyword">if</span>(isValidityBrithBy18IdCard(idCard) &amp;&amp; isTrueValidateCodeBy18IdCard(a_idCard))&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 判断身份证号码为18位时最后的验证位是否正确</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a_idCard 身份证号码数组</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">isTrueValidateCodeBy18IdCard</span><span class="params">(a_idCard)</span></span>&#123;</span><br><span class="line">	 <span class="keyword">var</span> sum = <span class="number">0</span>;<span class="comment">//声明加权求和变量</span></span><br><span class="line">	 <span class="keyword">if</span>(a_idCard[<span class="number">17</span>].toLowerCase() == <span class="string">'x'</span>)&#123;</span><br><span class="line">		 a_idCard[<span class="number">17</span>] = <span class="number">10</span>;<span class="comment">//将最后位为x的验证码替换为10方便后续操作</span></span><br><span class="line">	 &#125;</span><br><span class="line">	 <span class="keyword">for</span>( <span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">17</span> ; i++)&#123;</span><br><span class="line">		 sum += Wi[i] * a_idCard[i];<span class="comment">//求加权和</span></span><br><span class="line">	 &#125;</span><br><span class="line">	 valCodePosition = sum % <span class="number">11</span>;<span class="comment">//得到验证码所在位置</span></span><br><span class="line">	 <span class="keyword">if</span>(a_idCard[<span class="number">17</span>] == ValideCode[valCodePosition])&#123;</span><br><span class="line">		 <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">	 &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		 <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	 &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 验证18位数身份证号码中的生日是否有效</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> idCard 18位身份证字符串</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">isValidityBrithBy18IdCard</span><span class="params">(idCard)</span></span>&#123;</span><br><span class="line">	 <span class="keyword">var</span> year = idCard.substring(<span class="number">6</span>,<span class="number">10</span>);</span><br><span class="line">	 <span class="keyword">var</span> month = idCard.substring(<span class="number">10</span>,<span class="number">12</span>);</span><br><span class="line">	 <span class="keyword">var</span> day = idCard.substring(<span class="number">12</span>,<span class="number">14</span>);</span><br><span class="line">	 <span class="keyword">var</span> temp_date = <span class="keyword">new</span> Date(year, parseFloat(month)<span class="number">-1</span>, parseFloat(day));</span><br><span class="line">	 <span class="comment">//这里用getFullYear()获取年份,避免千年虫问题</span></span><br><span class="line">	 <span class="keyword">if</span>(temp_date.getFullYear() !=parseFloat(year) || temp_date.getMonth() != parseFloat(month)<span class="number">-1</span> || temp_date.getDate() != parseFloat(day))&#123;</span><br><span class="line">		 <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	 &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		 <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">	 &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 验证15位数身份证好好的生日是否有效生日</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> idCard 15位身份证字符串</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">isValidityBrithBy15IdCard</span><span class="params">(idCard)</span></span>&#123;</span><br><span class="line">	  <span class="keyword">var</span> year = idCard.substring(<span class="number">6</span>,<span class="number">8</span>);</span><br><span class="line">	  <span class="keyword">var</span> month = idCard.substring(<span class="number">8</span>,<span class="number">10</span>);</span><br><span class="line">	  <span class="keyword">var</span> day = idCard.substring(<span class="number">10</span>,<span class="number">12</span>);</span><br><span class="line">	  <span class="keyword">var</span> temp_date = <span class="keyword">new</span> Date(year,parseFloat(mont)<span class="number">-1</span>, parseFloat(day));</span><br><span class="line">	  <span class="comment">//对于老身份证中你的年龄则不需考虑千年虫问题而使用getYear()方法</span></span><br><span class="line">	  <span class="keyword">if</span>(temp_date.getYear() != parseFloat(year) || temp_date.getMonth() != parseFloat(mont)<span class="number">-1</span> || temp_date.getDay != parseFloat(day))&#123;</span><br><span class="line">		  <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		  <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">	  &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line"> <span class="comment">//去掉字符串头尾空格</span></span><br><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">trim</span><span class="params">(str)</span></span>&#123;</span><br><span class="line">	 <span class="keyword">return</span> str.replace(/(^\s*)|(\s*$)/g, <span class="string">""</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/js/" rel="tag"># js</a>
+          
+            <a href="/tags/身份证号码验证/" rel="tag"># 身份证号码验证</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/linux-scp/" rel="prev" title="Linux之间文件传输">
+                Linux之间文件传输 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="gitment"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460" alt="Foyal">
+          <p class="site-author-name" itemprop="name">Foyal</p>
+          <p class="site-description motion-element" itemprop="description">你的指尖,拥有改变世界的力量!</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/skyling" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/frenlee" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lujun.co" title="Lujun" target="_blank">Lujun</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://caihongtengxu.github.io" title="Xuteng" target="_blank">Xuteng</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#验证原理"><span class="nav-number">1.1.</span> <span class="nav-text">验证原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#身份证的构成"><span class="nav-number">1.2.</span> <span class="nav-text">身份证的构成</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证实现"><span class="nav-number">2.</span> <span class="nav-text">验证实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Foyal</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+  <span>湘ICP备15007038号</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+	        
+		<script type="text/javascript">
+        var gitment = new Gitment({
+            owner: 'skyling',
+            repo: 'skyling.github.io',
+            oauth: {
+                client_id: '84029209ec9578e08b3e',
+                client_secret: '1100117cb4c8b857b4f2e3ac1c4542b1e40b7698',
+            },
+        })
+        gitment.render('gitment')
+		</script>
+	
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2zb9UK8ByKTVd3GhpIt4WMYT-gzGzoHsz", "rbfXIoQorqQNbl3oelK2dcOt");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

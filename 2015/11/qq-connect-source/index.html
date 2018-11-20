@@ -1,0 +1,956 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="fog1liP0xE">
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="php,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Frenlee" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="QQ登录的源码阅读，一般API的请求在PHP中都是通过curl请求来完成的。同时一般的API请求可能会对应一系列不同的请求地址和参数，以及必要验证参数。通过阅读QQ登录源码后，以后类似的API可以通过类似的方法来完成。">
+<meta name="keywords" content="php">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QQ登录PHP SDK源码阅读">
+<meta property="og:url" content="http://blog.frenlee.com/2015/11/qq-connect-source/index.html">
+<meta property="og:site_name" content="Frenlee">
+<meta property="og:description" content="QQ登录的源码阅读，一般API的请求在PHP中都是通过curl请求来完成的。同时一般的API请求可能会对应一系列不同的请求地址和参数，以及必要验证参数。通过阅读QQ登录源码后，以后类似的API可以通过类似的方法来完成。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-20T04:09:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="QQ登录PHP SDK源码阅读">
+<meta name="twitter:description" content="QQ登录的源码阅读，一般API的请求在PHP中都是通过curl请求来完成的。同时一般的API请求可能会对应一系列不同的请求地址和参数，以及必要验证参数。通过阅读QQ登录源码后，以后类似的API可以通过类似的方法来完成。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.frenlee.com/2015/11/qq-connect-source/">
+
+
+
+
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+
+  <title> QQ登录PHP SDK源码阅读 | Frenlee </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-111666479-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?204dafdfd4e301f2a2ddb7be470cd035";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1261168597&web_id=1261168597" language="JavaScript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Frenlee</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">勇往直前</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-collect">
+          <a href="/collect" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br>
+            
+            收藏
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.frenlee.com/2015/11/qq-connect-source/">
+
+  <span style="display:none" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Foyal">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Frenlee">
+    <span style="display:none" itemprop="logo" itemscope="" itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Frenlee" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                QQ登录PHP SDK源码阅读
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-11-12T13:34:16+00:00">
+                2015-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/" itemprop="url" rel="index">
+                    <span itemprop="name">php</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/11/qq-connect-source/" class="leancloud_visitors" data-flag-title="QQ登录PHP SDK源码阅读">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>QQ登录的源码阅读，一般API的请求在PHP中都是通过curl请求来完成的。同时一般的API请求可能会对应一系列不同的请求地址和参数，以及必要验证参数。通过阅读QQ登录源码后，以后类似的API可以通过类似的方法来完成。</p>
+<a id="more"></a>
+<h3 id="文件组成"><a href="#文件组成" class="headerlink" title="文件组成"></a>文件组成</h3><p>QQ登录PHP SDK文件主要分为三个大部分：</p>
+<ul>
+<li>入口文件 qqConnectAPI</li>
+<li>配置文件 inc.php config.php</li>
+<li>相关类文件</li>
+</ul>
+<p>当然，核心主要存在相关的类文件中，其中包括：</p>
+<ul>
+<li>异常错误处理类 ErrorCase</li>
+<li>配置值记录类 Recorder</li>
+<li>URL请求类 URL</li>
+<li>授权认证基类 OAuth</li>
+<li>API信息获取类 QC</li>
+</ul>
+<p>入口文件主要负责资源的加载和引入到我们需要的调用QQ登录API的地方.</p>
+<p>配置文件中主要存放了一些认证信息以及API调用权限信息。</p>
+<p>好了先从入口文件开始入手看：</p>
+<h3 id="入口文件"><a href="#入口文件" class="headerlink" title="入口文件"></a>入口文件</h3><p><code>qqConnectAPI.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">session_start();</span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(dirname(<span class="keyword">__FILE__</span>).<span class="string">"/comm/config.php"</span>);</span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"QC.class.php"</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里主要负责引入配置文件和主类，配置文件就config.php只是定义了两个常量，一个ROOT只想当前API路径。比较有意思的是它使用的是相对路径进行定位的，实现手段是使用的dirname（）手段向前递进目录的。</p>
+</blockquote>
+<p><code>config.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="string">"ROOT"</span>,dirname(dirname(<span class="keyword">__FILE__</span>)).<span class="string">"/"</span>);</span><br><span class="line">define(<span class="string">"CLASS_PATH"</span>,ROOT.<span class="string">"class/"</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在inc.php文件中是以json字符串格式保存的appid，appkey，callback等信息。</p>
+</blockquote>
+<h3 id="错误异常处理类"><a href="#错误异常处理类" class="headerlink" title="错误异常处理类"></a>错误异常处理类</h3><p><code>ErrorCase.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"Recorder.class.php"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@brief</span> ErrorCase类，封闭异常</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ErrorCase</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $errorMsg;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;errorMsg = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">"20001"</span> =&gt; <span class="string">"&lt;h2&gt;配置文件损坏或无法读取，请重新执行intall&lt;/h2&gt;"</span>,</span><br><span class="line">            <span class="string">"30001"</span> =&gt; <span class="string">"&lt;h2&gt;The state does not match. You may be a victim of CSRF.&lt;/h2&gt;"</span>,</span><br><span class="line">            <span class="string">"50001"</span> =&gt; <span class="string">"&lt;h2&gt;可能是服务器无法请求https协议&lt;/h2&gt;可能未开启curl支持,请尝试开启curl支持，重启web服务器，如果问题仍未解决，请联系我们"</span></span><br><span class="line">            );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * showError</span></span><br><span class="line"><span class="comment">     * 显示错误信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $code    错误代码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $description 描述信息（可选）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">showError</span><span class="params">($code, $description = <span class="string">'$'</span>)</span></span>&#123;</span><br><span class="line">        $recorder = <span class="keyword">new</span> Recorder();</span><br><span class="line">        <span class="keyword">if</span>(! $recorder-&gt;readInc(<span class="string">"errorReport"</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>();<span class="comment">//die quietly</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">echo</span> <span class="string">"&lt;meta charset=\"UTF-8\"&gt;"</span>;</span><br><span class="line">        <span class="keyword">if</span>($description == <span class="string">"$"</span>)&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="keyword">$this</span>-&gt;errorMsg[$code]);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">"&lt;h3&gt;error:&lt;/h3&gt;$code"</span>;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">"&lt;h3&gt;msg  :&lt;/h3&gt;$description"</span>;</span><br><span class="line">            <span class="keyword">exit</span>(); </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">showTips</span><span class="params">($code, $description = <span class="string">'$'</span>)</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这个类中主要就是实现了一个函数，showError来显示错误信息，通过Recorder类获取配置信息中是否开启了错误报告，若没有开启的话就直接die(),不进行错误信息显示。</p>
+</blockquote>
+<h3 id="配置值记录类"><a href="#配置值记录类" class="headerlink" title="配置值记录类"></a>配置值记录类</h3><p><code>Recorder.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"ErrorCase.class.php"</span>);</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Recorder</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> $data;</span><br><span class="line">    <span class="keyword">private</span> $inc;</span><br><span class="line">    <span class="keyword">private</span> $error;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;error = <span class="keyword">new</span> ErrorCase();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------读取配置文件</span></span><br><span class="line">        $incFileContents = file(ROOT.<span class="string">"comm/inc.php"</span>);</span><br><span class="line">        $incFileContents = $incFileContents[<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">$this</span>-&gt;inc = json_decode($incFileContents);</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;inc))&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"20001"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>($_SESSION[<span class="string">'QC_userData'</span>]))&#123;</span><br><span class="line">            <span class="keyword">self</span>::$data = <span class="keyword">array</span>();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">self</span>::$data = $_SESSION[<span class="string">'QC_userData'</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">write</span><span class="params">($name,$value)</span></span>&#123;</span><br><span class="line">        <span class="keyword">self</span>::$data[$name] = $value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">read</span><span class="params">($name)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="keyword">self</span>::$data[$name]))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">self</span>::$data[$name];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">readInc</span><span class="params">($name)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;inc-&gt;$name))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;inc-&gt;$name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">delete</span><span class="params">($name)</span></span>&#123;</span><br><span class="line">        <span class="keyword">unset</span>(<span class="keyword">self</span>::$data[$name]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span>&#123;</span><br><span class="line">        $_SESSION[<span class="string">'QC_userData'</span>] = <span class="keyword">self</span>::$data;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这个类主要是用来记录配置信息以及其他需要保存的数据的（比如AccessToken）配置信息从inc.php文件中获取，而其他数据$data是保存在session中的。函数就是读写删除data数据的函数以及读取配置信息的函数，这里使用了析构函数来保存$data信息到session中。这个地方值得学习。</p>
+</blockquote>
+<h3 id="网路请求工具类"><a href="#网路请求工具类" class="headerlink" title="网路请求工具类"></a>网路请求工具类</h3><p><code>URL.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"ErrorCase.class.php"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@brief</span> url封装类，将常用的url请求操作封装在一起</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">URL</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $error;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;error = <span class="keyword">new</span> ErrorCase();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * combineURL</span></span><br><span class="line"><span class="comment">     * 拼接url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $baseURL   基于的url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array  $keysArr   参数列表数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string           返回拼接的url</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">combineURL</span><span class="params">($baseURL,$keysArr)</span></span>&#123;</span><br><span class="line">        $combined = $baseURL.<span class="string">"?"</span>;</span><br><span class="line">        $valueArr = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span>($keysArr <span class="keyword">as</span> $key =&gt; $val)&#123;</span><br><span class="line">            $valueArr[] = <span class="string">"$key=$val"</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $keyStr = implode(<span class="string">"&amp;"</span>,$valueArr);</span><br><span class="line">        $combined .= ($keyStr);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> $combined;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * get_contents</span></span><br><span class="line"><span class="comment">     * 服务器通过get请求获得内容</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $url       请求的url,拼接后的</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string           请求返回的内容</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_contents</span><span class="params">($url)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ini_get(<span class="string">"allow_url_fopen"</span>) == <span class="string">"1"</span>) &#123;</span><br><span class="line">            $response = file_get_contents($url);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            $ch = curl_init();</span><br><span class="line">            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, <span class="keyword">FALSE</span>);</span><br><span class="line">            curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="keyword">TRUE</span>);</span><br><span class="line">            curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">            $response =  curl_exec($ch);</span><br><span class="line">            curl_close($ch);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------请求为空</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>($response))&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"50001"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> $response;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * get</span></span><br><span class="line"><span class="comment">     * get方式请求资源</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $url     基于的baseUrl</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $keysArr  参数列表数组      </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string         返回的资源内容</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get</span><span class="params">($url, $keysArr)</span></span>&#123;</span><br><span class="line">        $combined = <span class="keyword">$this</span>-&gt;combineURL($url, $keysArr);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;get_contents($combined);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * post</span></span><br><span class="line"><span class="comment">     * post方式请求资源</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $url       基于的baseUrl</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $keysArr    请求的参数列表</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $flag         标志位</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string           返回的资源内容</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">post</span><span class="params">($url, $keysArr, $flag = <span class="number">0</span>)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        $ch = curl_init();</span><br><span class="line">        <span class="keyword">if</span>(! $flag) curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, <span class="keyword">FALSE</span>);</span><br><span class="line">        curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="keyword">TRUE</span>); </span><br><span class="line">        curl_setopt($ch, CURLOPT_POST, <span class="keyword">TRUE</span>); </span><br><span class="line">        curl_setopt($ch, CURLOPT_POSTFIELDS, $keysArr); </span><br><span class="line">        curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">        $ret = curl_exec($ch);</span><br><span class="line"></span><br><span class="line">        curl_close($ch);</span><br><span class="line">        <span class="keyword">return</span> $ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这个类主要是实现服务器端与远程服务器（QQ API服务器）之间的通信请求，简单的实现了get请求和post请求，还有一个就是将基地址和请求参数数组拼合成url的函数了，简单明了。</p>
+</blockquote>
+<h3 id="OAuth认证交互基类"><a href="#OAuth认证交互基类" class="headerlink" title="OAuth认证交互基类"></a>OAuth认证交互基类</h3><p><code>Oauth.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"Recorder.class.php"</span>);</span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"URL.class.php"</span>);</span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"ErrorCase.class.php"</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Oauth</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> VERSION = <span class="string">"2.0"</span>;</span><br><span class="line">    <span class="keyword">const</span> GET_AUTH_CODE_URL = <span class="string">"https://graph.qq.com/oauth2.0/authorize"</span>;</span><br><span class="line">    <span class="keyword">const</span> GET_ACCESS_TOKEN_URL = <span class="string">"https://graph.qq.com/oauth2.0/token"</span>;</span><br><span class="line">    <span class="keyword">const</span> GET_OPENID_URL = <span class="string">"https://graph.qq.com/oauth2.0/me"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> $recorder;</span><br><span class="line">    <span class="keyword">public</span> $urlUtils;</span><br><span class="line">    <span class="keyword">protected</span> $error;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;recorder = <span class="keyword">new</span> Recorder();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;urlUtils = <span class="keyword">new</span> URL();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;error = <span class="keyword">new</span> ErrorCase();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//QQ登录</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">qq_login</span><span class="params">()</span></span>&#123;</span><br><span class="line">        $appid = <span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"appid"</span>);</span><br><span class="line">        $callback = <span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"callback"</span>);</span><br><span class="line">        $scope = <span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"scope"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------生成唯一随机串防CSRF攻击</span></span><br><span class="line">        $state = md5(uniqid(rand(), <span class="keyword">TRUE</span>));</span><br><span class="line">        <span class="keyword">$this</span>-&gt;recorder-&gt;write(<span class="string">'state'</span>,$state);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------构造请求参数列表</span></span><br><span class="line">        $keysArr = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">"response_type"</span> =&gt; <span class="string">"code"</span>,</span><br><span class="line">            <span class="string">"client_id"</span> =&gt; $appid,</span><br><span class="line">            <span class="string">"redirect_uri"</span> =&gt; $callback,</span><br><span class="line">            <span class="string">"state"</span> =&gt; $state,</span><br><span class="line">            <span class="string">"scope"</span> =&gt; $scope</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        $login_url =  <span class="keyword">$this</span>-&gt;urlUtils-&gt;combineURL(<span class="keyword">self</span>::GET_AUTH_CODE_URL, $keysArr);</span><br><span class="line"></span><br><span class="line">        header(<span class="string">"Location:$login_url"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//登录回调</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">qq_callback</span><span class="params">()</span></span>&#123;</span><br><span class="line">        $state = <span class="keyword">$this</span>-&gt;recorder-&gt;read(<span class="string">"state"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//--------验证state防止CSRF攻击</span></span><br><span class="line">        <span class="keyword">if</span>($_GET[<span class="string">'state'</span>] != $state)&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"30001"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------请求参数列表</span></span><br><span class="line">        $keysArr = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">"grant_type"</span> =&gt; <span class="string">"authorization_code"</span>,</span><br><span class="line">            <span class="string">"client_id"</span> =&gt; <span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"appid"</span>),</span><br><span class="line">            <span class="string">"redirect_uri"</span> =&gt; urlencode(<span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"callback"</span>)),</span><br><span class="line">            <span class="string">"client_secret"</span> =&gt; <span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"appkey"</span>),</span><br><span class="line">            <span class="string">"code"</span> =&gt; $_GET[<span class="string">'code'</span>]</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">//------构造请求access_token的url</span></span><br><span class="line">        $token_url = <span class="keyword">$this</span>-&gt;urlUtils-&gt;combineURL(<span class="keyword">self</span>::GET_ACCESS_TOKEN_URL, $keysArr);</span><br><span class="line">        $response = <span class="keyword">$this</span>-&gt;urlUtils-&gt;get_contents($token_url);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(strpos($response, <span class="string">"callback"</span>) !== <span class="keyword">false</span>)&#123;</span><br><span class="line"></span><br><span class="line">            $lpos = strpos($response, <span class="string">"("</span>);</span><br><span class="line">            $rpos = strrpos($response, <span class="string">")"</span>);</span><br><span class="line">            $response  = substr($response, $lpos + <span class="number">1</span>, $rpos - $lpos <span class="number">-1</span>);</span><br><span class="line">            $msg = json_decode($response);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">isset</span>($msg-&gt;error))&#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;error-&gt;showError($msg-&gt;error, $msg-&gt;error_description);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $params = <span class="keyword">array</span>();</span><br><span class="line">        parse_str($response, $params);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;recorder-&gt;write(<span class="string">"access_token"</span>, $params[<span class="string">"access_token"</span>]);</span><br><span class="line">        <span class="keyword">return</span> $params[<span class="string">"access_token"</span>];</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_openid</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------请求参数列表</span></span><br><span class="line">        $keysArr = <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">"access_token"</span> =&gt; <span class="keyword">$this</span>-&gt;recorder-&gt;read(<span class="string">"access_token"</span>)</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        $graph_url = <span class="keyword">$this</span>-&gt;urlUtils-&gt;combineURL(<span class="keyword">self</span>::GET_OPENID_URL, $keysArr);</span><br><span class="line">        $response = <span class="keyword">$this</span>-&gt;urlUtils-&gt;get_contents($graph_url);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//--------检测错误是否发生</span></span><br><span class="line">        <span class="keyword">if</span>(strpos($response, <span class="string">"callback"</span>) !== <span class="keyword">false</span>)&#123;</span><br><span class="line"></span><br><span class="line">            $lpos = strpos($response, <span class="string">"("</span>);</span><br><span class="line">            $rpos = strrpos($response, <span class="string">")"</span>);</span><br><span class="line">            $response = substr($response, $lpos + <span class="number">1</span>, $rpos - $lpos <span class="number">-1</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $user = json_decode($response);</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">isset</span>($user-&gt;error))&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError($user-&gt;error, $user-&gt;error_description);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//------记录openid</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;recorder-&gt;write(<span class="string">"openid"</span>, $user-&gt;openid);</span><br><span class="line">        <span class="keyword">return</span> $user-&gt;openid;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这个类是一个基类，只完成了QQ登录API请求核心的部分，即QQ登录地址跳转，qq回调函数处理，以及获取用户openid的函数。<br>QQ登录跳转主要就是拼接跳转地址.在这个地址中使用了一个放跨站请求的state,使用的是  md5(uniqid(rand()),TRUE)实现的。存放于session中，在回调的时候用于验证是否是从本服务器发起的请求，从而来防止跨站请求。<br>qq回调函数主要就是从QQ服务器获取access_token用于之后的请求。<br>获取用户openid就是通过access_token获取信息。</p>
+</blockquote>
+<h3 id="API信息获取类"><a href="#API信息获取类" class="headerlink" title="API信息获取类"></a>API信息获取类</h3><p><code>QC.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/* PHP SDK</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> connect<span class="doctag">@qq</span>.com</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@copyright</span> © 2013, Tencent Corporation. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">require_once</span>(CLASS_PATH.<span class="string">"Oauth.class.php"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@brief</span> QC类，api外部对象，调用接口全部依赖于此对象</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">QC</span> <span class="keyword">extends</span> <span class="title">Oauth</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $kesArr, $APIMap;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * _construct</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 构造方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@access</span> public </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@since</span> 5</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $access_token  access_token value</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $openid        openid value</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Object QC</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($access_token = <span class="string">""</span>, $openid = <span class="string">""</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">parent</span>::__construct();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果access_token和openid为空，则从session里去取，适用于demo展示情形</span></span><br><span class="line">        <span class="keyword">if</span>($access_token === <span class="string">""</span> || $openid === <span class="string">""</span>)&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;keysArr = <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"oauth_consumer_key"</span> =&gt; (int)<span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"appid"</span>),</span><br><span class="line">                <span class="string">"access_token"</span> =&gt; <span class="keyword">$this</span>-&gt;recorder-&gt;read(<span class="string">"access_token"</span>),</span><br><span class="line">                <span class="string">"openid"</span> =&gt; <span class="keyword">$this</span>-&gt;recorder-&gt;read(<span class="string">"openid"</span>)</span><br><span class="line">            );</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;keysArr = <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"oauth_consumer_key"</span> =&gt; (int)<span class="keyword">$this</span>-&gt;recorder-&gt;readInc(<span class="string">"appid"</span>),</span><br><span class="line">                <span class="string">"access_token"</span> =&gt; $access_token,</span><br><span class="line">                <span class="string">"openid"</span> =&gt; $openid</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//初始化APIMap</span></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 加#表示非必须，无则不传入url(url中不会出现该参数)， "key" =&gt; "val" 表示key如果没有定义则使用默认值val</span></span><br><span class="line"><span class="comment">         * 规则 array( baseUrl, argListArr, method)</span></span><br><span class="line"><span class="comment">         * </span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;APIMap = <span class="keyword">array</span>(</span><br><span class="line">        </span><br><span class="line">            </span><br><span class="line">            <span class="comment">/*                       qzone                    */</span></span><br><span class="line">            <span class="string">"add_blog"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/blog/add_one_blog"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"title"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"content"</span> =&gt; <span class="keyword">null</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_topic"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/shuoshuo/add_topic"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"richtype"</span>,<span class="string">"richval"</span>,<span class="string">"con"</span>,<span class="string">"#lbs_nm"</span>,<span class="string">"#lbs_x"</span>,<span class="string">"#lbs_y"</span>,<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"#third_source"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_user_info"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/user/get_user_info"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>),</span><br><span class="line">                <span class="string">"GET"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_one_blog"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/blog/add_one_blog"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"title"</span>, <span class="string">"content"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>),</span><br><span class="line">                <span class="string">"GET"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_album"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/photo/add_album"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"albumname"</span>, <span class="string">"#albumdesc"</span>, <span class="string">"#priv"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"upload_pic"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/photo/upload_pic"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"picture"</span>, <span class="string">"#photodesc"</span>, <span class="string">"#title"</span>, <span class="string">"#albumid"</span>, <span class="string">"#mobile"</span>, <span class="string">"#x"</span>, <span class="string">"#y"</span>, <span class="string">"#needfeed"</span>, <span class="string">"#successnum"</span>, <span class="string">"#picnum"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"list_album"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/photo/list_album"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_share"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/share/add_share"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"title"</span>, <span class="string">"url"</span>, <span class="string">"#comment"</span>,<span class="string">"#summary"</span>,<span class="string">"#images"</span>,<span class="string">"format"</span> =&gt; <span class="string">"json"</span>,<span class="string">"#type"</span>,<span class="string">"#playurl"</span>,<span class="string">"#nswb"</span>,<span class="string">"site"</span>,<span class="string">"fromurl"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"check_page_fans"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/user/check_page_fans"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"page_id"</span> =&gt; <span class="string">"314416946"</span>,<span class="string">"format"</span> =&gt; <span class="string">"json"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="comment">/*                    wblog                             */</span></span><br><span class="line"></span><br><span class="line">            <span class="string">"add_t"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/t/add_t"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"content"</span>,<span class="string">"#clientip"</span>,<span class="string">"#longitude"</span>,<span class="string">"#compatibleflag"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_pic_t"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/t/add_pic_t"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"content"</span>, <span class="string">"pic"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"#clientip"</span>, <span class="string">"#longitude"</span>, <span class="string">"#latitude"</span>, <span class="string">"#syncflag"</span>, <span class="string">"#compatiblefalg"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"del_t"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/t/del_t"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"id"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_repost_list"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/t/get_repost_list"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"flag"</span>, <span class="string">"rootid"</span>, <span class="string">"pageflag"</span>, <span class="string">"pagetime"</span>, <span class="string">"reqnum"</span>, <span class="string">"twitterid"</span>, <span class="string">"format"</span> =&gt; <span class="string">"json"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_info"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/user/get_info"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_other_info"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/user/get_other_info"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"#name"</span>, <span class="string">"fopenid"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_fanslist"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/relation/get_fanslist"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"reqnum"</span>, <span class="string">"startindex"</span>, <span class="string">"#mode"</span>, <span class="string">"#install"</span>, <span class="string">"#sex"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"get_idollist"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/relation/get_idollist"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"reqnum"</span>, <span class="string">"startindex"</span>, <span class="string">"#mode"</span>, <span class="string">"#install"</span>)</span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"add_idol"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/relation/add_idol"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"#name-1"</span>, <span class="string">"#fopenids-1"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="string">"del_idol"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/relation/del_idol"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"format"</span> =&gt; <span class="string">"json"</span>, <span class="string">"#name-1"</span>, <span class="string">"#fopenid-1"</span>),</span><br><span class="line">                <span class="string">"POST"</span></span><br><span class="line">            ),</span><br><span class="line">            <span class="comment">/*                           pay                          */</span></span><br><span class="line"></span><br><span class="line">            <span class="string">"get_tenpay_addr"</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">"https://graph.qq.com/cft_info/get_tenpay_addr"</span>,</span><br><span class="line">                <span class="keyword">array</span>(<span class="string">"ver"</span> =&gt; <span class="number">1</span>,<span class="string">"limit"</span> =&gt; <span class="number">5</span>,<span class="string">"offset"</span> =&gt; <span class="number">0</span>,<span class="string">"format"</span> =&gt; <span class="string">"json"</span>)</span><br><span class="line">            )</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 请求API</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $arr 传入参数数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $argsList 参数列表</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $baseUrl 基础地址</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $method 请求方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">_applyAPI</span><span class="params">($arr, $argsList, $baseUrl, $method)</span></span>&#123;</span><br><span class="line">        $pre = <span class="string">"#"</span>;<span class="comment">//可省略的参数的头部</span></span><br><span class="line">        $keysArr = <span class="keyword">$this</span>-&gt;keysArr;<span class="comment">//获取到接口配置信息</span></span><br><span class="line"></span><br><span class="line">        $optionArgList = <span class="keyword">array</span>();<span class="comment">//一些多项选填参数必选一的情形</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span>($argsList <span class="keyword">as</span> $key =&gt; $val)&#123;</span><br><span class="line"></span><br><span class="line">            $tmpKey = $key;<span class="comment">//参数名</span></span><br><span class="line">            $tmpVal = $val;<span class="comment">//参数值</span></span><br><span class="line">            <span class="comment">//如果没有设置key,则将value作为参数名使用</span></span><br><span class="line">            <span class="keyword">if</span>(!is_string($key))&#123;</span><br><span class="line">                $tmpKey = $val;</span><br><span class="line">                <span class="comment">//参数是否必须</span></span><br><span class="line">                <span class="keyword">if</span>(strpos($val,$pre) === <span class="number">0</span>)&#123;<span class="comment">//否</span></span><br><span class="line">                    $tmpVal = $pre;</span><br><span class="line">                    $tmpKey = substr($tmpKey,<span class="number">1</span>);</span><br><span class="line">                    <span class="keyword">if</span>(preg_match(<span class="string">"/-(\d$)/"</span>, $tmpKey, $res))&#123;</span><br><span class="line">                        $tmpKey = str_replace($res[<span class="number">0</span>], <span class="string">""</span>, $tmpKey);</span><br><span class="line">                        $optionArgList[$res[<span class="number">1</span>]][] = $tmpKey;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;<span class="comment">//是</span></span><br><span class="line">                    $tmpVal = <span class="keyword">null</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//-----如果没有设置相应的参数</span></span><br><span class="line">            <span class="keyword">if</span>(!<span class="keyword">isset</span>($arr[$tmpKey]) || $arr[$tmpKey] === <span class="string">""</span>)&#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>($tmpVal == $pre)&#123;<span class="comment">//则使用默认的值</span></span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span> <span class="keyword">if</span>($tmpVal)&#123;</span><br><span class="line">                    $arr[$tmpKey] = $tmpVal;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;<span class="comment">//文件上传处理</span></span><br><span class="line">                    <span class="keyword">if</span>($v = $_FILES[$tmpKey])&#123;</span><br><span class="line"></span><br><span class="line">                        $filename = dirname($v[<span class="string">'tmp_name'</span>]).<span class="string">"/"</span>.$v[<span class="string">'name'</span>];</span><br><span class="line">                        move_uploaded_file($v[<span class="string">'tmp_name'</span>], $filename);</span><br><span class="line">                        $arr[$tmpKey] = <span class="string">"@$filename"</span>;</span><br><span class="line"></span><br><span class="line">                    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                        <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"api调用参数错误"</span>,<span class="string">"未传入参数$tmpKey"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//将值拼接值keyArr中</span></span><br><span class="line">            $keysArr[$tmpKey] = $arr[$tmpKey];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//检查选填参数必填一的情形</span></span><br><span class="line">        <span class="keyword">foreach</span>($optionArgList <span class="keyword">as</span> $val)&#123;</span><br><span class="line">            $n = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">foreach</span>($val <span class="keyword">as</span> $v)&#123;</span><br><span class="line">                <span class="keyword">if</span>(in_array($v, array_keys($keysArr)))&#123;</span><br><span class="line">                    $n ++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//多项必选其一中不存在一个</span></span><br><span class="line">            <span class="keyword">if</span>(! $n)&#123;</span><br><span class="line">                $str = implode(<span class="string">","</span>,$val);</span><br><span class="line">                <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"api调用参数错误"</span>,$str.<span class="string">"必填一个"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//发起请求 </span></span><br><span class="line">        <span class="keyword">if</span>($method == <span class="string">"POST"</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>($baseUrl == <span class="string">"https://graph.qq.com/blog/add_one_blog"</span>) $response = <span class="keyword">$this</span>-&gt;urlUtils-&gt;post($baseUrl, $keysArr, <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">else</span> $response = <span class="keyword">$this</span>-&gt;urlUtils-&gt;post($baseUrl, $keysArr, <span class="number">0</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>($method == <span class="string">"GET"</span>)&#123;</span><br><span class="line">            $response = <span class="keyword">$this</span>-&gt;urlUtils-&gt;get($baseUrl, $keysArr);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> $response;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * _call</span></span><br><span class="line"><span class="comment">     * 魔术方法，做api调用转发</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name    调用的方法名称</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array $arg      参数列表数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@since</span> 5.0</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> array          返加调用结果数组</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span><span class="params">($name,$arg)</span></span>&#123;</span><br><span class="line">        <span class="comment">//如果APIMap不存在相应的api</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;APIMap[$name]))&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError(<span class="string">"api调用名称错误"</span>,<span class="string">"不存在的API: &lt;span style='color:red;'&gt;$name&lt;/span&gt;"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//从APIMap获取api相应参数</span></span><br><span class="line">        $baseUrl = <span class="keyword">$this</span>-&gt;APIMap[$name][<span class="number">0</span>];</span><br><span class="line">        $argsList = <span class="keyword">$this</span>-&gt;APIMap[$name][<span class="number">1</span>];</span><br><span class="line">        $method = <span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;APIMap[$name][<span class="number">2</span>]) ? <span class="keyword">$this</span>-&gt;APIMap[$name][<span class="number">2</span>] : <span class="string">"GET"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">empty</span>($arg))&#123;</span><br><span class="line">            $arg[<span class="number">0</span>] = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//对于get_tenpay_addr，特殊处理，php json_decode对\xA312此类字符支持不好</span></span><br><span class="line">        <span class="keyword">if</span>($name != <span class="string">"get_tenpay_addr"</span>)&#123;</span><br><span class="line">            $response = json_decode(<span class="keyword">$this</span>-&gt;_applyAPI($arg[<span class="number">0</span>], $argsList, $baseUrl, $method));</span><br><span class="line">            $responseArr = <span class="keyword">$this</span>-&gt;objToArr($response);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            $responseArr = <span class="keyword">$this</span>-&gt;simple_json_parser(<span class="keyword">$this</span>-&gt;_applyAPI($arg[<span class="number">0</span>], $argsList, $baseUrl, $method));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//检查返回ret判断api是否成功调用</span></span><br><span class="line">        <span class="keyword">if</span>($responseArr[<span class="string">'ret'</span>] == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> $responseArr;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;error-&gt;showError($response-&gt;ret, $response-&gt;msg);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//php 对象到数组转换</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">objToArr</span><span class="params">($obj)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!is_object($obj) &amp;&amp; !is_array($obj)) &#123;</span><br><span class="line">            <span class="keyword">return</span> $obj;</span><br><span class="line">        &#125;</span><br><span class="line">        $arr = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">foreach</span>($obj <span class="keyword">as</span> $k =&gt; $v)&#123;</span><br><span class="line">            $arr[$k] = <span class="keyword">$this</span>-&gt;objToArr($v);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * get_access_token</span></span><br><span class="line"><span class="comment">     * 获得access_token</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> void</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@since</span> 5.0</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string 返加access_token</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_access_token</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;recorder-&gt;read(<span class="string">"access_token"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//简单实现json到php数组转换功能</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">simple_json_parser</span><span class="params">($json)</span></span>&#123;</span><br><span class="line">        $json = str_replace(<span class="string">"&#123;"</span>,<span class="string">""</span>,str_replace(<span class="string">"&#125;"</span>,<span class="string">""</span>, $json));</span><br><span class="line">        $jsonValue = explode(<span class="string">","</span>, $json);</span><br><span class="line">        $arr = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">foreach</span>($jsonValue <span class="keyword">as</span> $v)&#123;</span><br><span class="line">            $jValue = explode(<span class="string">":"</span>, $v);</span><br><span class="line">            $arr[str_replace(<span class="string">'"'</span>,<span class="string">""</span>, $jValue[<span class="number">0</span>])] = (str_replace(<span class="string">'"'</span>, <span class="string">""</span>, $jValue[<span class="number">1</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> $arr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>最喜欢的就是这个类了，喜欢它这种简洁明了的思想。将请求基地址，请求参数以及请求方式定义为数组，然后通过 __call  魔术方法来调用器API函数，返回值。最核心的部分应该就是 _applyAPI 这个函数了，它的主要任务就是处理请求参数的关系，参数分为  必须参数 ， 非必须参数，多项必选其一参数等这些参数的处理。还有就是参数默认值，这些情况都有考虑到处理。 使用  #区分了非必须参数 ，在非必须参数后加 【-数字】处理了多项参数必选其一的参数。然后就是文件的处理使用了  @filename 来处理的。将处理好的参数统一放到keyArr数组中，最后通过url工具进行处理。</p>
+</blockquote>
+<h3 id="使用部分"><a href="#使用部分" class="headerlink" title="使用部分"></a>使用部分</h3><p>接下来简单看下QQ登录的使用吧，在示例中，认证部分（example/oauth/）：</p>
+<p><code>index.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(<span class="string">"../../API/qqConnectAPI.php"</span>);</span><br><span class="line">$qc = <span class="keyword">new</span> QC();</span><br><span class="line">$qc-&gt;qq_login();</span><br></pre></td></tr></table></figure>
+<p>简单的调用，包含乳沟文件，实例化QC对象，调用QQ登录。</p>
+<p>回调文件：</p>
+<p><code>callback.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">require_once</span>(<span class="string">"../../API/qqConnectAPI.php"</span>);</span><br><span class="line">$qc = <span class="keyword">new</span> QC();</span><br><span class="line"><span class="keyword">echo</span> $qc-&gt;qq_callback();</span><br><span class="line"><span class="keyword">echo</span> $qc-&gt;get_openid();</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>和登录一样，只是在回调后获取了用户openid信息。</p>
+</blockquote>
+<blockquote>
+<p>QQ登录的这种代码设计思想可以用在其他很多API请求方面，一般的都可以满足，而且需要修改的地方不会太多，然后可以加入自己的相关存储操作类。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/10/php-packge-curl/" rel="next" title="PHP中CURL类库封装">
+                <i class="fa fa-chevron-left"></i> PHP中CURL类库封装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/11/mysql-related-id-insert/" rel="prev" title="MySQL中使用sql语句实现关联ID数据的插入">
+                MySQL中使用sql语句实现关联ID数据的插入 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="gitment"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460" alt="Foyal">
+          <p class="site-author-name" itemprop="name">Foyal</p>
+          <p class="site-description motion-element" itemprop="description">你的指尖,拥有改变世界的力量!</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/skyling" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/frenlee" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lujun.co" title="Lujun" target="_blank">Lujun</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://caihongtengxu.github.io" title="Xuteng" target="_blank">Xuteng</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件组成"><span class="nav-number">1.</span> <span class="nav-text">文件组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#入口文件"><span class="nav-number">2.</span> <span class="nav-text">入口文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#错误异常处理类"><span class="nav-number">3.</span> <span class="nav-text">错误异常处理类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置值记录类"><span class="nav-number">4.</span> <span class="nav-text">配置值记录类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网路请求工具类"><span class="nav-number">5.</span> <span class="nav-text">网路请求工具类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OAuth认证交互基类"><span class="nav-number">6.</span> <span class="nav-text">OAuth认证交互基类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API信息获取类"><span class="nav-number">7.</span> <span class="nav-text">API信息获取类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用部分"><span class="nav-number">8.</span> <span class="nav-text">使用部分</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Foyal</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+  <span>湘ICP备15007038号</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+	        
+		<script type="text/javascript">
+        var gitment = new Gitment({
+            owner: 'skyling',
+            repo: 'skyling.github.io',
+            oauth: {
+                client_id: '84029209ec9578e08b3e',
+                client_secret: '1100117cb4c8b857b4f2e3ac1c4542b1e40b7698',
+            },
+        })
+        gitment.render('gitment')
+		</script>
+	
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2zb9UK8ByKTVd3GhpIt4WMYT-gzGzoHsz", "rbfXIoQorqQNbl3oelK2dcOt");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

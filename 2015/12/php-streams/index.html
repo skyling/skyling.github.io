@@ -1,0 +1,916 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="fog1liP0xE">
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="php,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Frenlee" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="流是在php4.3.0中引入的，作用是使用同一的方式处理文件，网络和数据压缩等公用的同一套函数和用法的操作。简单而言，就是具有流式行为的资源对象。因此，流可以线性读写，获取还能使用fseek()函数来定位到流中的任意位置。说明文档">
+<meta name="keywords" content="php">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP Streams （流）">
+<meta property="og:url" content="http://blog.frenlee.com/2015/12/php-streams/index.html">
+<meta property="og:site_name" content="Frenlee">
+<meta property="og:description" content="流是在php4.3.0中引入的，作用是使用同一的方式处理文件，网络和数据压缩等公用的同一套函数和用法的操作。简单而言，就是具有流式行为的资源对象。因此，流可以线性读写，获取还能使用fseek()函数来定位到流中的任意位置。说明文档">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-20T04:09:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP Streams （流）">
+<meta name="twitter:description" content="流是在php4.3.0中引入的，作用是使用同一的方式处理文件，网络和数据压缩等公用的同一套函数和用法的操作。简单而言，就是具有流式行为的资源对象。因此，流可以线性读写，获取还能使用fseek()函数来定位到流中的任意位置。说明文档">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.frenlee.com/2015/12/php-streams/">
+
+
+
+
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+
+  <title> PHP Streams （流） | Frenlee </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-111666479-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?204dafdfd4e301f2a2ddb7be470cd035";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1261168597&web_id=1261168597" language="JavaScript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Frenlee</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">勇往直前</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-collect">
+          <a href="/collect" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br>
+            
+            收藏
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.frenlee.com/2015/12/php-streams/">
+
+  <span style="display:none" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Foyal">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Frenlee">
+    <span style="display:none" itemprop="logo" itemscope="" itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Frenlee" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                PHP Streams （流）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-10T15:53:00+00:00">
+                2015-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/" itemprop="url" rel="index">
+                    <span itemprop="name">php</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/12/php-streams/" class="leancloud_visitors" data-flag-title="PHP Streams （流）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>流是在php4.3.0中引入的，作用是使用同一的方式处理文件，网络和数据压缩等公用的同一套函数和用法的操作。简单而言，就是具有流式行为的资源对象。因此，流可以线性读写，获取还能使用fseek()函数来定位到流中的任意位置。<a href="http://php.net/manual/zh/intro.stream.php" target="_blank" rel="noopener">说明文档</a><br><a id="more"></a><br>处理流函数：fopen()、fgets()、fwrite()、file_get_content();</p>
+<h3 id="流封装-协议"><a href="#流封装-协议" class="headerlink" title="流封装 协议"></a>流封装 协议</h3><p>流式数据的种类各异，每种类型需要不同独特的协议，以便读写数据。我们将这些协议称为流封装协议(<a href="http://www.php.net/manual/zh/wrappers.php).我们可以读写文件系统，可以通过HTTP、HTTPS或SSH与远程web服务器通信，还可以打开并读写zip,rar或则phar压缩文件。这些通信方式包含下述相同的过程：" target="_blank" rel="noopener">http://www.php.net/manual/zh/wrappers.php).我们可以读写文件系统，可以通过HTTP、HTTPS或SSH与远程web服务器通信，还可以打开并读写zip,rar或则phar压缩文件。这些通信方式包含下述相同的过程：</a></p>
+<ol>
+<li>开始通信</li>
+<li>读取数据</li>
+<li>写入数据</li>
+<li>结束通信</li>
+</ol>
+<p>其协议格式如下：<br><code>&lt;sheme&gt;://&lt;target&gt;</code><br>其中<sheme>是流的封装协议，<target>是流的数据源。<br>PHP已有的协议如下：</target></sheme></p>
+<p>自定义流</p>
+<p><a href="http://www.php.net/manual/zh/class.streamwrapper.php" target="_blank" rel="noopener">http://www.php.net/manual/zh/class.streamwrapper.php</a><br><a href="http://www.php.net/manual/zh/stream.streamwrapper.example-1.php" target="_blank" rel="noopener">http://www.php.net/manual/zh/stream.streamwrapper.example-1.php</a></p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">file:</span><span class="comment">// — 访问本地文件系统</span></span><br><span class="line"><span class="symbol">http:</span><span class="comment">// — 访问 HTTP(s) 网址</span></span><br><span class="line"><span class="symbol">ftp:</span><span class="comment">// — 访问 FTP(s) URLs</span></span><br><span class="line"><span class="symbol">php:</span><span class="comment">// — 访问各个输入/输出流（I/O streams）</span></span><br><span class="line"><span class="symbol">zlib:</span><span class="comment">// — 压缩流</span></span><br><span class="line"><span class="symbol">data:</span><span class="comment">// — 数据（RFC 2397）</span></span><br><span class="line"><span class="symbol">glob:</span><span class="comment">// — 查找匹配的文件路径模式</span></span><br><span class="line"><span class="symbol">phar:</span><span class="comment">// — &lt;span class='wp_keywordlink_affiliate'&gt;&lt;a href="http://blog.frenlee.cn/archives/tag/php" title="View all posts in PHP" target="_blank"&gt;PHP&lt;/a&gt;&lt;/span&gt; 归档</span></span><br><span class="line"><span class="symbol">ssh2:</span><span class="comment">// — Secure Shell 2</span></span><br><span class="line"><span class="symbol">rar:</span><span class="comment">// — RAR</span></span><br><span class="line"><span class="symbol">ogg:</span><span class="comment">// — 音频流</span></span><br><span class="line"><span class="symbol">expect:</span><span class="comment">// — 处理交互式的流、</span></span><br></pre></td></tr></table></figure>
+<h3 id="流上下文"><a href="#流上下文" class="headerlink" title="流上下文"></a>流上下文</h3><p>有些PHP流能够接受一些列可选参数，这些参数叫流上下文，用于定制流的行为。不同的流封装协议使用的上下文参数有所不同。流上下文使用 <code>stream_content_create()</code> <a href="http://php.net/manual/zh/function.stream-context-create.php" target="_blank" rel="noopener">http://php.net/manual/zh/function.stream-context-create.php</a>  函数创建。上下文的创建可以参考流封装协议文档 <a href="http://php.net/manual/zh/context.php" target="_blank" rel="noopener">http://php.net/manual/zh/context.php</a> 。这个函数返回的上下文对象可以传输大多数文件系统和流函数。</p>
+<p>下面看个例子吧：<br>    使用<code>filte_get_content()</code>函数创建一个POST请求</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$requestBody = <span class="string">'&#123;"username":"josh"&#125;'</span>;</span><br><span class="line">$context = stream_context_create(<span class="keyword">array</span>(</span><br><span class="line">    <span class="string">'http'</span>=&gt;<span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'method'</span> =&gt; <span class="string">'POST'</span>,</span><br><span class="line">        <span class="string">'header'</span> =&gt; <span class="string">"Content-Type:application/json;charset=utf-8;\r\n"</span>  .</span><br><span class="line">            <span class="string">"Content-Length: "</span> . mb_strlen($requestBody),</span><br><span class="line">        <span class="string">'content'</span> =&gt; $requestBody</span><br><span class="line">    )</span><br><span class="line">));</span><br><span class="line">$response = file_get_contents(<span class="string">'http://localhost/test/get.php'</span>, <span class="keyword">false</span>, $context);</span><br><span class="line">var_dump($response);</span><br></pre></td></tr></table></figure>
+<p>流上下文是个关联数组，最外层键是流封装协议的名称。</p>
+<h3 id="流过滤器"><a href="#流过滤器" class="headerlink" title="流过滤器"></a>流过滤器</h3><p>上面讲过如何去打开流，从其中读取文件。其实，PHP流真正的强大地方在于过滤，转换，添加，删除流中传输的数据。<br>php自己内置了一些流过滤器：string.rot13,string.toupper,string.tolower,string.strip_tags.<br>具体查看: <a href="http://php.net/manual/zh/filters.php" target="_blank" rel="noopener">http://php.net/manual/zh/filters.php</a><br>若要将过滤器附加到现有的流上，要使用<code>stream_filter_append()</code>函数。<br>示例：<br>将所有的字母转换为大写</p>
+<figure class="highlight sml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$<span class="keyword">handle</span> = fopen(<span class="symbol">'data</span>.txt',<span class="symbol">'rb'</span>);</span><br><span class="line">stream_filter_append($<span class="keyword">handle</span>, <span class="symbol">'string</span>.toupper');</span><br><span class="line"><span class="keyword">while</span>(feof($<span class="keyword">handle</span>) !== <span class="literal">true</span>) &#123;</span><br><span class="line">    echo fgets($<span class="keyword">handle</span>).<span class="type">PHP_EOL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们还可以使用  php://filter 流封装协议吧过滤器附加到流上。<br><a href="http://php.net/manual/zh/wrappers.php.php#refsect2-wrappers.php-unknown-unknown-unknown-unknown-unknown-unknown-descriptiot" target="_blank" rel="noopener">http://php.net/manual/zh/wrappers.php.php#refsect2-wrappers.php-unknown-unknown-unknown-unknown-unknown-unknown-descriptiot</a><br>示例：<br><figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$handle = <span class="keyword">fopen</span>(<span class="string">'php://filter/read=string.toupper/resource=data.txt'</span>,<span class="string">'rb'</span>);</span><br><span class="line"><span class="keyword">while</span>(<span class="keyword">feof</span>($handle) !== true) &#123;</span><br><span class="line">    echo fgets($handle).PHP_EOL;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fclose</span>($handle);</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>在这个过程中就可以做很多事了，比如说文件的过滤，写入等，都是可以的。</p>
+</blockquote>
+<h3 id="自定义流过滤器"><a href="#自定义流过滤器" class="headerlink" title="自定义流过滤器"></a>自定义流过滤器</h3><p>自定义过滤器，这个应该是一个具有高可玩性的功能吧。因为在大多数情况下我们都需要使用自定义的流过滤器来完成我们的业务。</p>
+<p>自定义一个流过滤器类，是通过继承 <a href="http://www.php.net/manual/zh/class.php-user-filter.php" target="_blank" rel="noopener">php_user_filter</a> 类来实现的。这个类需要实现<code>filter()</code>方法，然后使用 <code>stream_filter_register()</code>函数来注册自定义的流过滤器。</p>
+<p>下面来看一个过滤特殊字符的自定义过滤器：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DirtyWordsFilter</span> <span class="keyword">extends</span> <span class="title">php_user_filter</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($in, $out, &amp;$consumed, $closing)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $words = <span class="keyword">array</span>(<span class="string">'你麻痹'</span>,<span class="string">'SB'</span>,<span class="string">'sb'</span>);<span class="comment">//过滤词</span></span><br><span class="line">        $wordData = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> ($words <span class="keyword">as</span> $word) &#123;</span><br><span class="line">            $replacement = array_fill(<span class="number">0</span>, mb_strlen($word), <span class="string">'*'</span>);</span><br><span class="line">            $wordData[$word] = implode(<span class="string">''</span>, $replacement);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $bad = array_keys($wordData);</span><br><span class="line">        $good = array_values($wordData);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> ($bucket = stream_bucket_make_writeable($in)) &#123;</span><br><span class="line">            $bucket-&gt;data = str_replace($bad, $good, $bucket-&amp;gt;data);</span><br><span class="line">            $consumed += $bucket-&amp;gt;datalen;</span><br><span class="line">            stream_bucket_append($out, $bucket);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> PSFS_PASS_ON;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">header(<span class="string">'Content-Type:text/html;charset=utf-8'</span>);</span><br><span class="line">stream_filter_register(<span class="string">'dirty_words_filter'</span>, <span class="string">'DirtyWordsFilter'</span>);</span><br><span class="line"></span><br><span class="line">$handle = fopen(<span class="string">'data.txt'</span>, <span class="string">'rb'</span>);</span><br><span class="line">stream_filter_append($handle, <span class="string">'dirty_words_filter'</span>);</span><br><span class="line"><span class="keyword">while</span> (feof($handle) !== <span class="keyword">true</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> fgets($handle);</span><br><span class="line">&#125;</span><br><span class="line">fclose($handle);</span><br><span class="line"></span><br><span class="line">var_dump(stream_get_filters());</span><br></pre></td></tr></table></figure></p>
+<p>过滤器的核心就在filter这个函数，它的作用是接收，处理再转运流数据。<br><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">$in</span>: 上游流来的一个队列，有一个或者多个片段，片段中是从出发地流出来的数据。一个片段的大小是固定的。</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$out</span>: 由一个或者多个片段组成的队列，流向下游的流目的地。</span></span><br><span class="line">&amp;<span class="symbol">$</span>consumed: 自定义的过滤器处理的流数据总字节数。</span><br><span class="line"><span class="meta"><span class="meta-keyword">$closing</span>: 判断流是否正常结束，即filter()方法接收到的是最后一个片段。</span></span><br></pre></td></tr></table></figure></p>
+<p>可以参考流扩展: <a href="http://php.net/manual/zh/book.stream.php" target="_blank" rel="noopener">http://php.net/manual/zh/book.stream.php</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/pagination/" rel="next" title="分页的处理">
+                <i class="fa fa-chevron-left"></i> 分页的处理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/php-sync-git-project/" rel="prev" title="使用PHP脚本同步git项目">
+                使用PHP脚本同步git项目 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="gitment"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460" alt="Foyal">
+          <p class="site-author-name" itemprop="name">Foyal</p>
+          <p class="site-description motion-element" itemprop="description">你的指尖,拥有改变世界的力量!</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/skyling" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/frenlee" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lujun.co" title="Lujun" target="_blank">Lujun</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://caihongtengxu.github.io" title="Xuteng" target="_blank">Xuteng</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#流封装-协议"><span class="nav-number">1.</span> <span class="nav-text">流封装 协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流上下文"><span class="nav-number">2.</span> <span class="nav-text">流上下文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流过滤器"><span class="nav-number">3.</span> <span class="nav-text">流过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义流过滤器"><span class="nav-number">4.</span> <span class="nav-text">自定义流过滤器</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Foyal</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+  <span>湘ICP备15007038号</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+	        
+		<script type="text/javascript">
+        var gitment = new Gitment({
+            owner: 'skyling',
+            repo: 'skyling.github.io',
+            oauth: {
+                client_id: '84029209ec9578e08b3e',
+                client_secret: '1100117cb4c8b857b4f2e3ac1c4542b1e40b7698',
+            },
+        })
+        gitment.render('gitment')
+		</script>
+	
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2zb9UK8ByKTVd3GhpIt4WMYT-gzGzoHsz", "rbfXIoQorqQNbl3oelK2dcOt");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,917 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="fog1liP0xE">
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="go,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Frenlee" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="golang 很适合写一些后台的小服务程序,一般来说一个服务程序的构成都离不开配置,日志,数据库的操作,简单说下个人开发中使用的程序组件以及基本目录结构.">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="golang 后台服务应用基本组件组合">
+<meta property="og:url" content="http://blog.frenlee.com/2017/12/go-base-structure/index.html">
+<meta property="og:site_name" content="Frenlee">
+<meta property="og:description" content="golang 很适合写一些后台的小服务程序,一般来说一个服务程序的构成都离不开配置,日志,数据库的操作,简单说下个人开发中使用的程序组件以及基本目录结构.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-20T04:09:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="golang 后台服务应用基本组件组合">
+<meta name="twitter:description" content="golang 很适合写一些后台的小服务程序,一般来说一个服务程序的构成都离不开配置,日志,数据库的操作,简单说下个人开发中使用的程序组件以及基本目录结构.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.frenlee.com/2017/12/go-base-structure/">
+
+
+
+
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+
+  <title> golang 后台服务应用基本组件组合 | Frenlee </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-111666479-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?204dafdfd4e301f2a2ddb7be470cd035";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1261168597&web_id=1261168597" language="JavaScript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Frenlee</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">勇往直前</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-collect">
+          <a href="/collect" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br>
+            
+            收藏
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.frenlee.com/2017/12/go-base-structure/">
+
+  <span style="display:none" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Foyal">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Frenlee">
+    <span style="display:none" itemprop="logo" itemscope="" itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Frenlee" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                golang 后台服务应用基本组件组合
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-21T10:26:01+00:00">
+                2017-12-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/golang/" itemprop="url" rel="index">
+                    <span itemprop="name">golang</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/12/go-base-structure/" class="leancloud_visitors" data-flag-title="golang 后台服务应用基本组件组合">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>golang 很适合写一些后台的小服务程序,一般来说一个服务程序的构成都离不开配置,日志,数据库的操作,简单说下个人开发中使用的程序组件以及基本目录结构.</p>
+<a id="more"></a>
+<p>项目中使用<a href="https://github.com/kardianos/govendor" target="_blank" rel="noopener">govendor</a>安装项目依赖,<code>base/</code>为项目目录名称</p>
+<h3 id="配置组件"><a href="#配置组件" class="headerlink" title="配置组件"></a>配置组件</h3><blockquote>
+<p>在程序中配置是一个必不可少的组件,它是程序更加灵活,给开发带来更多便捷.将设置置于配置文件中，从而没有必要在每次设置更改时重新编译应用程序。这里使用的<a href="https://github.com/toml-lang/toml" target="_blank" rel="noopener">toml</a>.</p>
+</blockquote>
+<h4 id="安装组件"><a href="#安装组件" class="headerlink" title="安装组件:"></a>安装组件:</h4><p><code>govendor fetch github.com/BurntSushi/toml</code></p>
+<h4 id="组件使用"><a href="#组件使用" class="headerlink" title="组件使用:"></a>组件使用:</h4><h5 id="创建配置文件"><a href="#创建配置文件" class="headerlink" title="创建配置文件"></a>创建配置文件</h5><p><code>base/app.conf</code>代码如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[database]</span><br><span class="line">host = &quot;127.0.0.1&quot;</span><br><span class="line">port = 3306</span><br><span class="line">db = &quot;test&quot;</span><br><span class="line">user = &quot;root&quot;</span><br><span class="line">password = &quot;123456&quot;</span><br><span class="line"></span><br><span class="line">[log]</span><br><span class="line">path = &quot;./&quot;</span><br><span class="line">file = &quot;log.log&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="创建配置文件解析读取代码"><a href="#创建配置文件解析读取代码" class="headerlink" title="创建配置文件解析读取代码"></a>创建配置文件解析读取代码</h5><p><code>base/config/config.go</code>:代码如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> config</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"github.com/BurntSushi/toml"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> _cfg MasterConfig</span><br><span class="line"></span><br><span class="line"><span class="comment">// MasterConfig App主配置</span></span><br><span class="line"><span class="keyword">type</span> MasterConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">    Db DbConfig    <span class="string">`toml:"database"`</span></span><br><span class="line">    LC LogConfig   <span class="string">`toml:"log"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DbConfig 数据库配置</span></span><br><span class="line"><span class="keyword">type</span> DbConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	Host     <span class="keyword">string</span> <span class="string">`toml:"host"`</span></span><br><span class="line">	Port     <span class="keyword">int</span>    <span class="string">`toml:"port"`</span></span><br><span class="line">	Db       <span class="keyword">string</span> <span class="string">`toml:"db"`</span></span><br><span class="line">	User     <span class="keyword">string</span> <span class="string">`toml:"user"`</span></span><br><span class="line">	Password <span class="keyword">string</span> <span class="string">`toml:"password"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LogConfig 日志文件配置</span></span><br><span class="line"><span class="keyword">type</span> LogConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	Path <span class="keyword">string</span> <span class="string">`toml:"path"`</span></span><br><span class="line">	File <span class="keyword">string</span> <span class="string">`toml:"file"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Init 初始化配置文件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(cfg <span class="keyword">string</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> _, err := toml.DecodeFile(cfg, &amp;_cfg); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GetDbConfig 获取数据库配置</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetDbConfig</span><span class="params">()</span> <span class="title">DbConfig</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> _cfg.Db</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GetLogConfig 获取日志配置</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetLogConfig</span><span class="params">()</span> <span class="title">LogConfig</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> _cfg.LC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="日志组件"><a href="#日志组件" class="headerlink" title="日志组件"></a>日志组件</h4><blockquote>
+<p>记录程序运行记录,必要的地方都带上日志,可以根据日志来追踪程序的运行状态</p>
+</blockquote>
+<h4 id="安装组件-1"><a href="#安装组件-1" class="headerlink" title="安装组件:"></a>安装组件:</h4><p><code>govendor fetch github.com/astaxie/beego/logs</code></p>
+<h4 id="组件使用-1"><a href="#组件使用-1" class="headerlink" title="组件使用:"></a>组件使用:</h4><h5 id="创建日志实例化代码"><a href="#创建日志实例化代码" class="headerlink" title="创建日志实例化代码"></a>创建日志实例化代码</h5><p><code>base/log/log.go</code> 代码如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> log</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"base/config"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/astaxie/beego/logs"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> hlog *logs.BeeLogger</span><br><span class="line"></span><br><span class="line"><span class="comment">// Init 初始化</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	hlog = logs.NewLogger(<span class="number">100</span>)</span><br><span class="line">	lconf := config.GetLogConfig()</span><br><span class="line">	logFile := lconf.Path + lconf.File</span><br><span class="line">	<span class="keyword">return</span> hlog.SetLogger(logs.AdapterFile, <span class="string">`&#123;"filename":"`</span>+logFile+<span class="string">`","level":7,"maxlines":0,"maxsize":0,"daily":true,"maxdays":120, "rotate":false&#125;`</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Log 获取日志句柄</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Log</span><span class="params">()</span> *<span class="title">logs</span>.<span class="title">BeeLogger</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> hlog</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据库组件"><a href="#数据库组件" class="headerlink" title="数据库组件"></a>数据库组件</h4><blockquote>
+<p>操作数据</p>
+</blockquote>
+<h4 id="安装组件-2"><a href="#安装组件-2" class="headerlink" title="安装组件:"></a>安装组件:</h4><p><code>govendor fetch github.com/gocraft/dbr</code></p>
+<h4 id="组件使用-2"><a href="#组件使用-2" class="headerlink" title="组件使用:"></a>组件使用:</h4><h5 id="创建日志实例化代码-1"><a href="#创建日志实例化代码-1" class="headerlink" title="创建日志实例化代码"></a>创建日志实例化代码</h5><p><code>base/db/mysql.go</code> 代码如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> db</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"base/config"</span></span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line">	_ <span class="string">"github.com/go-sql-driver/mysql"</span></span><br><span class="line">	<span class="string">"github.com/gocraft/dbr"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> DB_DNS = <span class="string">"%s:%s@tcp(%s:%d)/%s?loc=Local&amp;parseTime=true"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> _session *dbr.Session</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="comment">//初始化数据连接</span></span><br><span class="line">	cfg := config.GetDbConfig()</span><br><span class="line"></span><br><span class="line">	dns := fmt.Sprintf(DB_DNS, cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Db)</span><br><span class="line">	conn, err := dbr.Open(<span class="string">"mysql"</span>, dns, <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	_session = conn.NewSession(<span class="literal">nil</span>)</span><br><span class="line">	_session.SetMaxOpenConns(<span class="number">20</span>)</span><br><span class="line">	_session.SetMaxIdleConns(<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err = _session.Ping(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GetSession 获取数据库链接会话句柄</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetSession</span><span class="params">()</span> *<span class="title">dbr</span>.<span class="title">Session</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> _session</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="实例化组件"><a href="#实例化组件" class="headerlink" title="实例化组件"></a>实例化组件</h3><blockquote>
+<p>组件搭建完成后就是使用组件了,组件都需要再base 中初始化.</p>
+</blockquote>
+<p><code>base/main.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"base/config"</span></span><br><span class="line">	<span class="string">"base/db"</span></span><br><span class="line">	<span class="string">"base/log"</span></span><br><span class="line">	<span class="string">"flag"</span></span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> appConf = flag.String(<span class="string">"conf"</span>, <span class="string">"app.conf"</span>, <span class="string">"server config file"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	flag.Parse()</span><br><span class="line">	<span class="comment">// 配置文件初始化</span></span><br><span class="line">	<span class="keyword">if</span> err := config.Init(*appConf); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		os.Exit(<span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// 初始化日志组件</span></span><br><span class="line">	<span class="keyword">if</span> err := log.Init(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		os.Exit(<span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化数据库连接</span></span><br><span class="line">	<span class="keyword">if</span> err := db.Init(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		os.Exit(<span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 代码逻辑处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/tmux-guide/" rel="next" title="tmux快捷键 & 速查表">
+                <i class="fa fa-chevron-left"></i> tmux快捷键 & 速查表
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/git-file-mode/" rel="prev" title="git修改文件权限">
+                git修改文件权限 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="gitment"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460" alt="Foyal">
+          <p class="site-author-name" itemprop="name">Foyal</p>
+          <p class="site-description motion-element" itemprop="description">你的指尖,拥有改变世界的力量!</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/skyling" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/frenlee" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lujun.co" title="Lujun" target="_blank">Lujun</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://caihongtengxu.github.io" title="Xuteng" target="_blank">Xuteng</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置组件"><span class="nav-number">1.</span> <span class="nav-text">配置组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装组件"><span class="nav-number">1.1.</span> <span class="nav-text">安装组件:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#组件使用"><span class="nav-number">1.2.</span> <span class="nav-text">组件使用:</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建配置文件"><span class="nav-number">1.2.1.</span> <span class="nav-text">创建配置文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建配置文件解析读取代码"><span class="nav-number">1.2.2.</span> <span class="nav-text">创建配置文件解析读取代码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日志组件"><span class="nav-number">1.3.</span> <span class="nav-text">日志组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装组件-1"><span class="nav-number">1.4.</span> <span class="nav-text">安装组件:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#组件使用-1"><span class="nav-number">1.5.</span> <span class="nav-text">组件使用:</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建日志实例化代码"><span class="nav-number">1.5.1.</span> <span class="nav-text">创建日志实例化代码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库组件"><span class="nav-number">1.6.</span> <span class="nav-text">数据库组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装组件-2"><span class="nav-number">1.7.</span> <span class="nav-text">安装组件:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#组件使用-2"><span class="nav-number">1.8.</span> <span class="nav-text">组件使用:</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建日志实例化代码-1"><span class="nav-number">1.8.1.</span> <span class="nav-text">创建日志实例化代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化组件"><span class="nav-number">2.</span> <span class="nav-text">实例化组件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Foyal</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+  <span>湘ICP备15007038号</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+	        
+		<script type="text/javascript">
+        var gitment = new Gitment({
+            owner: 'skyling',
+            repo: 'skyling.github.io',
+            oauth: {
+                client_id: '84029209ec9578e08b3e',
+                client_secret: '1100117cb4c8b857b4f2e3ac1c4542b1e40b7698',
+            },
+        })
+        gitment.render('gitment')
+		</script>
+	
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2zb9UK8ByKTVd3GhpIt4WMYT-gzGzoHsz", "rbfXIoQorqQNbl3oelK2dcOt");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

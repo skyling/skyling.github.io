@@ -1,0 +1,944 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="fog1liP0xE">
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="php,jwt,认证,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Frenlee" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="理解JWT什么是JWTJson Web token(JWT)是基于开放标准(RFC 7519)设计的一种紧凑且独立的认证机制.它比较安全,可验证.可以对该token进行加密验证,一般用于用户认证和信息的安全传输上.它比较小,可以传输在URL.POST,参数,http头文件中,它可以携带一些用户自定义的信息.所以它可以用来做接口方面的认证,单点登录的用户认证.">
+<meta name="keywords" content="php,jwt,认证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JWT的应用">
+<meta property="og:url" content="http://blog.frenlee.com/2017/05/jwt/index.html">
+<meta property="og:site_name" content="Frenlee">
+<meta property="og:description" content="理解JWT什么是JWTJson Web token(JWT)是基于开放标准(RFC 7519)设计的一种紧凑且独立的认证机制.它比较安全,可验证.可以对该token进行加密验证,一般用于用户认证和信息的安全传输上.它比较小,可以传输在URL.POST,参数,http头文件中,它可以携带一些用户自定义的信息.所以它可以用来做接口方面的认证,单点登录的用户认证.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.frenlee.com/images/jwt-diagram.png">
+<meta property="og:updated_time" content="2018-11-20T04:09:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JWT的应用">
+<meta name="twitter:description" content="理解JWT什么是JWTJson Web token(JWT)是基于开放标准(RFC 7519)设计的一种紧凑且独立的认证机制.它比较安全,可验证.可以对该token进行加密验证,一般用于用户认证和信息的安全传输上.它比较小,可以传输在URL.POST,参数,http头文件中,它可以携带一些用户自定义的信息.所以它可以用来做接口方面的认证,单点登录的用户认证.">
+<meta name="twitter:image" content="http://blog.frenlee.com/images/jwt-diagram.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: "",
+      labels: ""
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.frenlee.com/2017/05/jwt/">
+
+
+
+
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+
+  <title> JWT的应用 | Frenlee </title>
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-111666479-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?204dafdfd4e301f2a2ddb7be470cd035";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1261168597&web_id=1261168597" language="JavaScript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Frenlee</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">勇往直前</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-collect">
+          <a href="/collect" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br>
+            
+            收藏
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.frenlee.com/2017/05/jwt/">
+
+  <span style="display:none" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Foyal">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Frenlee">
+    <span style="display:none" itemprop="logo" itemscope="" itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Frenlee" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JWT的应用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-16T18:55:02+00:00">
+                2017-05-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/jwt/" class="leancloud_visitors" data-flag-title="JWT的应用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="理解JWT"><a href="#理解JWT" class="headerlink" title="理解JWT"></a>理解JWT</h3><h4 id="什么是JWT"><a href="#什么是JWT" class="headerlink" title="什么是JWT"></a>什么是JWT</h4><p>Json Web token(JWT)是基于开放标准(<a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener">RFC 7519</a>)设计的一种紧凑且独立的认证机制.它比较安全,可验证.可以对该token进行加密验证,一般用于用户认证和信息的安全传输上.它比较小,可以传输在URL.POST,参数,http头文件中,它可以携带一些用户自定义的信息.所以它可以用来做接口方面的认证,单点登录的用户认证.</p>
+<a id="more"></a>
+<h4 id="JWT的构成"><a href="#JWT的构成" class="headerlink" title="JWT的构成"></a>JWT的构成</h4><p>JWT 主要由三个部分构成:</p>
+<ul>
+<li>Header 头部</li>
+<li>Payload 信息承载体</li>
+<li>Signature 签名<br>这三个部分有.号隔开,格式如下<br><code>header.payload.signature</code></li>
+</ul>
+<h5 id="Header"><a href="#Header" class="headerlink" title="Header:"></a>Header:</h5><p>头部由两个部分组成,这部分在token上会经过base64编码,所以这部分在是可以被反编码看到明文的.</p>
+<ul>
+<li>声明类型,这里是JWT</li>
+<li>声明加密的算法,例如 HMAC,SHA256或者RSA.</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"alg"</span>: <span class="string">"HMAC"</span>,</span><br><span class="line">    <span class="attr">"typ"</span>: <span class="string">"JWT"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h4><p>第二部分是信息承载体,主要由三个部分组成:</p>
+<ul>
+<li>保留的声明</li>
+<li>公共的声明</li>
+<li>私有的声明</li>
+</ul>
+<h5 id="保留的声明"><a href="#保留的声明" class="headerlink" title="保留的声明"></a>保留的声明</h5><ul>
+<li>iss: jwt签发者</li>
+<li>sub: jwt所面向的用户</li>
+<li>aud: 接收jwt的一方</li>
+<li>exp: jwt的过期时间，这个过期时间必须要大于签发时间</li>
+<li>nbf: 定义在什么时间之前，该jwt都是不可用的.</li>
+<li>iat: jwt的签发时间</li>
+<li>jti: jwt的唯一身份标识，主要用来作为一次性token,从而回避重放攻击。</li>
+</ul>
+<p>这部分是保留的声明,当然你也可以当做其他用法用,不过不建议这样做.不然别人获取到你token之后你还得大费口舌的去解释一番.</p>
+<h5 id="公共的声明"><a href="#公共的声明" class="headerlink" title="公共的声明"></a>公共的声明</h5><p>公共的声明可以添加任何的信息，一般添加用户的相关信息或其他业务需要的必要信息.但不建议添加敏感信息，因为该部分在客户端可解密.</p>
+<h5 id="私有的声明"><a href="#私有的声明" class="headerlink" title="私有的声明"></a>私有的声明</h5><p>私有声明是提供者和消费者所共同定义的声明，一般不建议存放敏感信息，因为base64是对称解密的，意味着该部分信息可以归类为明文信息。</p>
+<p>定义一个payload:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"sub"</span>: <span class="string">"1234567890"</span>,</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Doe"</span>,</span><br><span class="line">  <span class="attr">"admin"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h4><p>第三部分签名,它主要是用来验证token的安全性,因为token一般是由生成者来使用的.或者生成者和使用者会约定一个加密的key,基于header和payload以及key来生成这个部分,然后验证的时候也是基于这些数据来验证的安全性.例如使用sha256算法:</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(<span class="name">header</span>) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(<span class="name">payload</span>),</span><br><span class="line">  secret)</span><br></pre></td></tr></table></figure>
+<h3 id="在PHP中应用"><a href="#在PHP中应用" class="headerlink" title="在PHP中应用"></a>在PHP中应用</h3><p>jwt的流程如下:<br><img src="/images/jwt-diagram.png" alt="jwt"></p>
+<h4 id="加载语言组件代码"><a href="#加载语言组件代码" class="headerlink" title="加载语言组件代码"></a>加载语言组件代码</h4><p>可以在(<a href="jwt.io">jwt.io</a>)官方网站可以找到各种语言的JWT代码,下面我们已PHP为力,使用composer来加载下代码(<a href="https://github.com/lcobucci/jwt)" target="_blank" rel="noopener">https://github.com/lcobucci/jwt)</a>:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer <span class="keyword">require</span> lcobucci/jwt</span><br></pre></td></tr></table></figure>
+<h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><h5 id="生成Token"><a href="#生成Token" class="headerlink" title="生成Token"></a>生成Token</h5><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span> <span class="string">'./vendor/autoload.php'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// basic usage</span></span><br><span class="line"><span class="keyword">use</span> \<span class="title">Lcobucci</span>\<span class="title">JWT</span>\<span class="title">Builder</span>;</span><br><span class="line"><span class="keyword">use</span> \<span class="title">Lcobucci</span>\<span class="title">JWT</span>\<span class="title">Parser</span>;</span><br><span class="line"><span class="keyword">use</span> \<span class="title">Lcobucci</span>\<span class="title">JWT</span>\<span class="title">Signer</span>\<span class="title">Hmac</span>\<span class="title">Sha256</span>;</span><br><span class="line"></span><br><span class="line">$signer = <span class="keyword">new</span> Sha256(); <span class="comment">// 签名算法</span></span><br><span class="line"><span class="comment">//iss（签发者） , exp（过期时间戳） , sub（面向的用户） , aud（接收方） , iat（签发时间）</span></span><br><span class="line">$token = (<span class="keyword">new</span> Builder())-&gt;setIssuer(<span class="string">'http://example.com'</span>) <span class="comment">// 签发者</span></span><br><span class="line">    -&gt;setAudience(<span class="string">'http://example.org'</span>) <span class="comment">// 接受方</span></span><br><span class="line">    -&gt;setId(<span class="string">'123456'</span>, <span class="keyword">true</span>) <span class="comment">// jwt唯一标识,用作一次性的token</span></span><br><span class="line">    -&gt;setIssuedAt(time()) <span class="comment">// 签发时间</span></span><br><span class="line">    -&gt;setNotBefore(time()+<span class="number">60</span>) <span class="comment">// 能使用的时间</span></span><br><span class="line">    -&gt;setExpiration(time() + <span class="number">3600</span>) <span class="comment">// 过期时间</span></span><br><span class="line">    -&gt;set(<span class="string">'uid'</span>, <span class="number">1</span>) <span class="comment">// 自定义字段</span></span><br><span class="line">    -&gt;sign($signer, <span class="string">'testing'</span>) <span class="comment">// testing为设定的秘钥,这部分没有的话token第三部分会有空</span></span><br><span class="line">    -&gt;getToken();</span><br><span class="line"><span class="keyword">echo</span> (string)$token;</span><br></pre></td></tr></table></figure>
+<p>结果如下:</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJ<span class="number">0</span>eXAiOiJKV<span class="number">1</span>QiLCJhbGciOiJIUzI<span class="number">1</span><span class="symbol">NiIsImp0</span>aSI<span class="number">6</span>IjEyMzQ<span class="number">1</span><span class="symbol">NiJ9</span>.eyJpc<span class="number">3</span>MiOiJodHRwOlwvXC<span class="number">9</span>leGFtcGxlLm<span class="symbol">NvbSIsImF1</span>ZCI<span class="number">6</span>Imh<span class="number">0</span>dHA<span class="number">6</span>XC<span class="number">9</span>cL<span class="number">2</span>V<span class="number">4</span>YW<span class="number">1</span>wbGUub<span class="number">3</span>J<span class="symbol">nIiwianRpIjoiMTIzNDU2</span>IiwiaWF<span class="number">0</span>Ijox<span class="symbol">NDk0</span>OTMwODQ<span class="number">5</span>LCJuYmYiOjE<span class="number">0</span>OTQ<span class="number">5</span>MzA<span class="number">5</span>MDksImV<span class="number">4</span>cCI<span class="number">6</span>MTQ<span class="number">5</span><span class="symbol">NDkzNDQ0</span>OSwidWlkIjoxfQ.Ui<span class="number">0</span>lVBJ<span class="number">3</span>X<span class="number">2</span>AP_m_aoMgS<span class="symbol">n_ALCP_iWiSuSiIhRbWXEjs</span></span><br></pre></td></tr></table></figure>
+<h5 id="验证Token"><a href="#验证Token" class="headerlink" title="验证Token"></a>验证Token</h5><p>获取到Token只有对其进行解析,如果是加密的,需要先对其进行有效性和安全验证</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$data</span> = new \Lcobucci\JWT\ValidationData();</span><br><span class="line"><span class="variable">$data</span>-&gt;setIssuer(<span class="string">"http://example.com"</span>);</span><br><span class="line"><span class="variable">$data</span>-&gt;setAudience(<span class="string">"http://example.org"</span>);</span><br><span class="line"><span class="variable">$data</span>-&gt;setId(<span class="string">'123456'</span>);</span><br><span class="line"></span><br><span class="line">var_dump(<span class="variable">$token</span>-&gt;validate(<span class="variable">$data</span>)); <span class="regexp">//</span> <span class="keyword">false</span></span><br><span class="line"><span class="variable">$data</span>-&gt;setCurrentTime(time()+<span class="number">3600</span>);</span><br><span class="line">var_dump(<span class="variable">$token</span>-&gt;validate(<span class="variable">$data</span>)); <span class="regexp">//</span> <span class="keyword">true</span></span><br><span class="line"><span class="variable">$data</span>-&gt;setCurrentTime(time()+<span class="number">4000</span>);</span><br><span class="line">var_dump(<span class="variable">$token</span>-&gt;validate(<span class="variable">$data</span>));  <span class="regexp">//</span> <span class="keyword">false</span> 数据有效性验证</span><br><span class="line"></span><br><span class="line">var_dump(<span class="variable">$token</span>-&gt;verify(<span class="variable">$signer</span>, <span class="string">'test1'</span>)); <span class="regexp">//</span> <span class="keyword">false</span></span><br><span class="line">var_dump(<span class="variable">$token</span>-&gt;verify(<span class="variable">$signer</span>, <span class="string">'testing'</span>)); <span class="regexp">//</span> <span class="keyword">true</span> 签名验证</span><br></pre></td></tr></table></figure>
+<h5 id="解析Token"><a href="#解析Token" class="headerlink" title="解析Token"></a>解析Token</h5><p>当验证通过后,需要解析中间那一部分然后使用,其实自己解析的话就base64反编码一下就好了,所以这部分切记不可传递敏感信息</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解析</span></span><br><span class="line">$token = (<span class="keyword">new</span> Parser())-&gt;parse((string)$token); <span class="comment">// 解析一个token</span></span><br><span class="line">$token-&gt;getHeaders();</span><br><span class="line">$token-&gt;getClaims();</span><br><span class="line">var_dump($token-&gt;getHeader(<span class="string">'jti'</span>)); <span class="comment">// 保留的声明字段</span></span><br><span class="line">var_dump($token-&gt;getClaim(<span class="string">'iss'</span>)); <span class="comment">// 保留的声明字段</span></span><br><span class="line">var_dump($token-&gt;getClaim(<span class="string">'uid'</span>)); <span class="comment">// 自定义的声明字段</span></span><br></pre></td></tr></table></figure>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a href="https://jwt.io/introduction/" target="_blank" rel="noopener">https://jwt.io/introduction/</a></li>
+<li><a href="https://github.com/lcobucci/jwt/blob/3.2/README.md" target="_blank" rel="noopener">https://github.com/lcobucci/jwt/blob/3.2/README.md</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/jwt/" rel="tag"># jwt</a>
+          
+            <a href="/tags/认证/" rel="tag"># 认证</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/laravel-view-used-in-codeigniter/" rel="next" title="在CI(codeigniter)框架中使用laravel中的blade模板引擎">
+                <i class="fa fa-chevron-left"></i> 在CI(codeigniter)框架中使用laravel中的blade模板引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/kafka-demo-golang-implementation/" rel="prev" title="Kafka使用go实现生产者和消费者">
+                Kafka使用go实现生产者和消费者 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="gitment"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars1.githubusercontent.com/u/7539900?v=3&s=460" alt="Foyal">
+          <p class="site-author-name" itemprop="name">Foyal</p>
+          <p class="site-description motion-element" itemprop="description">你的指尖,拥有改变世界的力量!</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">34</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/skyling" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/frenlee" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://lujun.co" title="Lujun" target="_blank">Lujun</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://caihongtengxu.github.io" title="Xuteng" target="_blank">Xuteng</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#理解JWT"><span class="nav-number">1.</span> <span class="nav-text">理解JWT</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是JWT"><span class="nav-number">1.1.</span> <span class="nav-text">什么是JWT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JWT的构成"><span class="nav-number">1.2.</span> <span class="nav-text">JWT的构成</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Header"><span class="nav-number">1.2.1.</span> <span class="nav-text">Header:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Payload"><span class="nav-number">1.3.</span> <span class="nav-text">Payload</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#保留的声明"><span class="nav-number">1.3.1.</span> <span class="nav-text">保留的声明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#公共的声明"><span class="nav-number">1.3.2.</span> <span class="nav-text">公共的声明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#私有的声明"><span class="nav-number">1.3.3.</span> <span class="nav-text">私有的声明</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#签名"><span class="nav-number">1.4.</span> <span class="nav-text">签名</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在PHP中应用"><span class="nav-number">2.</span> <span class="nav-text">在PHP中应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#加载语言组件代码"><span class="nav-number">2.1.</span> <span class="nav-text">加载语言组件代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#生成Token"><span class="nav-number">2.2.1.</span> <span class="nav-text">生成Token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#验证Token"><span class="nav-number">2.2.2.</span> <span class="nav-text">验证Token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解析Token"><span class="nav-number">2.2.3.</span> <span class="nav-text">解析Token</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考"><span class="nav-number">2.3.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Foyal</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+  <span>湘ICP备15007038号</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+	        
+		<script type="text/javascript">
+        var gitment = new Gitment({
+            owner: 'skyling',
+            repo: 'skyling.github.io',
+            oauth: {
+                client_id: '84029209ec9578e08b3e',
+                client_secret: '1100117cb4c8b857b4f2e3ac1c4542b1e40b7698',
+            },
+        })
+        gitment.render('gitment')
+		</script>
+	
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2zb9UK8ByKTVd3GhpIt4WMYT-gzGzoHsz", "rbfXIoQorqQNbl3oelK2dcOt");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
